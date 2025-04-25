@@ -12,6 +12,7 @@ public class Employee {
 	String phone;
 	String email;
 	String address;
+	boolean gender;
 	LocalDate hireDate;
 	Double salary;
 	
@@ -22,7 +23,7 @@ public class Employee {
 	}
 	
 	
-	public Employee(String employeeID, String employeeName, String role, String phone, String email, String address,
+	public Employee(String employeeID, String employeeName, String role, String phone, String email, String address, boolean gender,
 			LocalDate hireDate, Double salary) {
 		super();
 		this.employeeID = employeeID;
@@ -31,6 +32,7 @@ public class Employee {
 		this.phone = phone;
 		this.email = email;
 		this.address = address;
+		this.gender = gender;
 		this.hireDate = hireDate;
 		this.salary = salary;
 	}
@@ -72,6 +74,12 @@ public class Employee {
 	public void setAddress(String address) {
 		this.address = address;
 	}
+	public boolean isGender() {
+		return gender;
+	}
+	public void setGender(boolean gender) {
+		this.gender = gender;
+	}
 	public LocalDate getHireDate() {
 		return hireDate;
 	}
@@ -107,8 +115,15 @@ public class Employee {
 
 	@Override
 	public String toString() {
+		String strGender;
+		if(gender) {
+			strGender = "Nam";
+		} else {
+			strGender = "Nữ";
+		}
 		return "Employee [employeeID=" + employeeID + ", employeeName=" + employeeName + ", role=" + role + ", phone="
-				+ phone + ", email=" + email + ", address=" + address + ", hireDate=" + hireDate + ", salary=" + salary
-				+ "]";
+				+ phone + ", email=" + email + ", address=" + address + ", gender=" + strGender + ", hireDate=" + hireDate
+				+ ", salary=" + salary + "]";
 	}
+
 }

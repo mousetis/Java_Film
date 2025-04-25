@@ -32,7 +32,7 @@ public class EmployeeManager {
 	public ArrayList<Employee> getListEmployee(){
 		ArrayList<Employee> list = new ArrayList<Employee>();
 		String sql = "select * from Employee";
-		
+		String gender = null;
 		try {
 			stmt = con.prepareStatement(sql);
 			ResultSet res = stmt.executeQuery();
@@ -42,6 +42,12 @@ public class EmployeeManager {
 				employee.setEmployeeID(res.getString("EmployeeID"));
 				employee.setEmployeeName(res.getString("EmployeeName"));
 				employee.setAddress(res.getString("Address"));
+				gender = res.getString("Gender");
+				if(gender.equalsIgnoreCase("Nam")) {
+					employee.setGender(true);
+				}else {
+					employee.setGender(false);
+				}
 				employee.setEmail(res.getString("Email"));
 				employee.setRole(res.getString("Role"));
 				employee.setPhone("Phone");
@@ -63,6 +69,7 @@ public class EmployeeManager {
 		String sql = "select * from Employee where EmployeeID like ? or EmployeeName like ?";
 		String findID = null;
 		String findName = null;
+		String gender = null;
 		
 		try {
 			stmt  = con.prepareStatement(sql);
@@ -82,6 +89,12 @@ public class EmployeeManager {
 				employee.setEmployeeID(res.getString("EmployeeID"));
 				employee.setEmployeeName(res.getString("EmployeeName"));
 				employee.setAddress(res.getString("Address"));
+				gender = res.getString("Gender");
+				if(gender.equalsIgnoreCase("Nam")) {
+					employee.setGender(true);
+				}else {
+					employee.setGender(false);
+				}
 				employee.setEmail(res.getString("Email"));
 				employee.setRole(res.getString("Role"));
 				employee.setPhone("Phone");
@@ -117,7 +130,7 @@ public class EmployeeManager {
 
 	//cập nhật nhân viên
 	public boolean updateEmployee(String keyID, Employee nv){
-		String sql ="update Employee set EmployeeID = ?, EmployeeName = ?, Role = ?, Phone = ?, Email = ?, Address = ?, HireDate = ?, Salary = ?";
+		String sql ="update Employee set EmployeeID = ?, EmployeeName = ?, Role = ?, Phone = ?, Email = ?, Address = ?, HireDate = ?, Salary = ?, Gender = ? where EmployeeID = ?";
 		try {
 			if(keyID != null & !keyID.isEmpty()) {
 				stmt = con.prepareStatement(sql);
@@ -129,6 +142,12 @@ public class EmployeeManager {
 				stmt.setString(6, nv.getAddress());
 				stmt.setDate(7, localDateToSqlDate(nv.getHireDate()));
 				stmt.setDouble(8, nv.getSalary());
+				if(nv.isGender()) {
+					stmt.setString(9, "Nam");
+				} else {
+					stmt.setString(9, "Nữ");
+				}
+				stmt.setString(10, keyID);
 				
 				ResultSet res = stmt.executeQuery();
 				return true;
@@ -137,6 +156,68 @@ public class EmployeeManager {
 			System.err.println("Can not update for: " + keyID + ": " + e.getMessage());
 		}
 		return false;
+	}
+	
+	//thêm nhân viên
+	public boolean addEmployee(Employee nv) {
+		String sql = "insert into Employee values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		try {
+			if(nv != null) {
+				stmt = con.prepareStatement(sql);
+				stmt.setString(1, nv.getEmployeeID());
+				stmt.setString(2, nv.getEmployeeName());
+				stmt.setString(3, nv.getRole());
+				stmt.setString(4, nv.getPhone());
+				stmt.setString(5, nv.getEmail());
+				stmt.setString(6, nv.getAddress());
+				stmt.setDate(7, localDateToSqlDate(nv.getHireDate()));
+				stmt.setDouble(8, nv.getSalary());
+				if(nv.isGender()) {
+					stmt.setString(9, "Nam");
+				} else {
+					stmt.setString(9, "Nữ");
+				}
+				
+				ResultSet res = stmt.executeQuery();
+				return true;
+			}
+		} catch (SQLException e) {
+			System.err.println("Can not add employee: " + e.getMessage());
+		}
+		return true;
+	}
+	
+	//lấy dữ liệu nhân viên
+	public Employee getEmployee(String keyID) {
+		Employee employee = new Employee();
+		String sql = "select * from Employee where EmployeeID = ?";
+		String gender = null;
+		try {
+			stmt = con.prepareStatement(sql);
+			stmt.setString(1, keyID);
+			ResultSet res = stmt.executeQuery();
+			
+			if(res.next()) {
+			employee.setEmployeeID(res.getString("EmployeeID"));
+			employee.setEmployeeName(res.getString("EmployeeName"));
+			employee.setAddress(res.getString("Address"));
+			gender = res.getString("Gender");
+			if(gender.equalsIgnoreCase("Nam")) {
+				employee.setGender(true);
+			} else {
+				employee.setGender(false);
+			}
+			employee.setEmail(res.getString("Email"));
+			employee.setRole(res.getString("Role"));
+			employee.setPhone(res.getString("Phone"));
+			employee.setHireDate(sqlDateToLocalDate(res.getDate("HireDate")));
+			employee.setSalary(res.getDouble("Salary"));
+			}
+		} catch (SQLException e) {
+			System.err.println("Can not get data of Employee: " + e.getMessage());
+		}
+		
+		return employee;
 	}
 	
 }

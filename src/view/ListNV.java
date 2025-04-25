@@ -7,7 +7,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.print.Book;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -26,7 +29,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-public class ListNV extends JPanel implements ActionListener{
+import model.Employee;
+import services.EmployeeManager;
+
+
+public class ListNV extends JPanel implements ActionListener, MouseListener{
 	private JLabel lbMaNV;
 	private JTextField txtMaNV;
 	private JLabel lbTenNV;
@@ -55,9 +62,11 @@ public class ListNV extends JPanel implements ActionListener{
 	private JLabel lbMaNV2;
 	private JButton btnTimKiem;
 	private JButton btnXoaTrang;
-
+	private services.EmployeeManager service;
+	private dao.EmployeeManager dao;
 	public ListNV() {
 		Font font = new Font ("Times New Roman",Font.BOLD,16);
+		service = new EmployeeManager(dao);
 		
 		//Phần nhập mã nhân viên và tên nhân viên cần tìm.
 		JPanel pnlNor = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -206,11 +215,72 @@ public class ListNV extends JPanel implements ActionListener{
 		pnlRight.add(box2Right);
 		box2.add(pnlRight);
 		add(box2, BorderLayout.CENTER);
-		
+
 		btnXoaTrang.addActionListener(this);
+		loadDataToTable();
+		table.addMouseListener(this);
 		
 	}
 
+	//load dữ liệu lên bảng
+	public void loadDataToTable() {
+		ArrayList<Employee> list = new ArrayList<Employee>();
+		list = service.getList();
+		for(Employee nv : list) {
+			tblmodel.addRow(new Object[] {
+					nv.getEmployeeID(),
+					nv.getEmployeeName(),
+					nv.getEmail()
+			});
+		}
+	}
+	
+	//load dữ liệu lên textField
+	public void loadToTextField() {
+		int rowSelected = table.convertRowIndexToModel(table.getSelectedRow());
+		String maNV = tblmodel.getValueAt(rowSelected, 0).toString();
+		Employee nv = new Employee();
+		nv = service.getEmployee(maNV);
+		txtMaNhanVien.setText(maNV);
+		txtHoTen.setText(nv.getEmployeeName());
+		txtSDT.setText(nv.getPhone());
+		txtEmail.setText(nv.getEmail());
+		if(nv.isGender()) {
+			rdNam.setSelected(true);
+		} else {
+			rdNu.setSelected(true);
+		}
+		comboxQuyen.setSelectedItem(nv.getRole());
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		loadToTextField();
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	public static void main(String[] args) {
 		new ListNV();
@@ -236,4 +306,5 @@ public class ListNV extends JPanel implements ActionListener{
 		}
 		
 	}
+
 }
