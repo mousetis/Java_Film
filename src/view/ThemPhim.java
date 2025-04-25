@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -25,7 +27,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-public class ThemPhim extends JPanel{
+public class ThemPhim extends JPanel implements ActionListener{
 	private JLabel lbTitle;
 	private DefaultTableModel tblmodel;
 	private JTable table;
@@ -157,6 +159,7 @@ public class ThemPhim extends JPanel{
 		boxRight1.add(Box.createHorizontalStrut(20));
 		boxRight1.add(txtMaPhim = new JTextField(10));
 		txtMaPhim.setPreferredSize(new Dimension(10, 30));
+		txtMaPhim.requestFocus();
 		boxRight1.add(Box.createHorizontalStrut(100));
 		boxRight.add(boxRight1);
 		boxRight.add(Box.createVerticalStrut(25));
@@ -191,6 +194,7 @@ public class ThemPhim extends JPanel{
 		rdTuoi.add(rdTreEm);
 		rdTuoi.add(rdTren16);
 		rdTuoi.add(rdTren18);
+		rdTren18.setSelected(true);
 		boxRight.add(boxRight3);
 		boxRight3.add(Box.createHorizontalStrut(95));
 		boxRight.add(Box.createVerticalStrut(25));
@@ -245,13 +249,28 @@ public class ThemPhim extends JPanel{
 		//Thêm khung tổng vào JFrame
 		add(pnlCent);
 		
-//		setSize(1000, 600);
-//		setLocationRelativeTo(null);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		setVisible(true);
+		btnXoaTrang.addActionListener(this);
+	}
+	
+	public void xoaTrang() {
+		txtMaPhim.setText("");
+		txtTenPhim.setText("");
+		rdTren18.setSelected(true);
+		spinnerGiaVe.setValue(0);
+		spinnerThoiLuong.setValue(0);
+		txtMaPhim.requestFocus();
 	}
 	
 	public static void main(String[] args) {
 		new ThemPhim();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		if(o.equals(btnXoaTrang)) {
+			xoaTrang();
+		}
+		
 	}
 }

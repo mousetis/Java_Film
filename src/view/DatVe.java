@@ -6,11 +6,17 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,7 +30,10 @@ import javax.swing.SwingConstants;
 
 import com.toedter.calendar.JDateChooser;
 
-public class DatVe extends JFrame{
+import model.Movies;
+
+public class DatVe extends JPanel implements ActionListener{
+	private static Movies phimDangChon; 
 	private JLabel lbTitlePhim;
 	private JDateChooser findDateChooser;
 	private JLabel lbNgayChieu;
@@ -53,11 +62,17 @@ public class DatVe extends JFrame{
 	private JLabel lbViTri;
 	private JLabel lbGiaGhe;
 	private Box boxGhe;
+	private ImageIcon iconPhim;
+	private Image imgPhim;
+	private JLabel lbPhim;
 
-	public DatVe() {
+
+	public DatVe(Movies phim) {
 		Font font = new Font ("Arial",Font.BOLD,16);
 		Font font2 = new Font ("Arial",Font.BOLD,20);
 		Font font3 = new Font ("Arial",Font.BOLD,18);
+		
+		this.phimDangChon = phim;
 		
 		Box boxCent = new Box(BoxLayout.X_AXIS);
 		
@@ -75,7 +90,6 @@ public class DatVe extends JFrame{
 		boxPhim.add(boxPhim1);
 		boxPhim.add(Box.createVerticalStrut(15));
 		
-		
 		Box boxPhimTrong = new Box(BoxLayout.X_AXIS);
 		
 		Box boxPhimLeft = new Box(BoxLayout.Y_AXIS);
@@ -89,6 +103,7 @@ public class DatVe extends JFrame{
 		boxPhim2.add(Box.createHorizontalStrut(10));
 		boxPhim2.add(txtTenPhim = new JTextField());
 		txtTenPhim.setPreferredSize(new Dimension(50, 30));
+		txtTenPhim.setEnabled(false);
 		boxPhim2.add(Box.createHorizontalStrut(10));
 		boxPhimLeft.add(boxPhim2);
 		boxPhimLeft.add(Box.createVerticalStrut(15));
@@ -131,6 +146,10 @@ public class DatVe extends JFrame{
 		boxPhimRight.setBorder(BorderFactory.createTitledBorder(""));
 		boxPhimRight.setPreferredSize(new Dimension(200, 150));
 		
+        lbPhim = new JLabel();
+        
+        boxPhimRight.add(lbPhim);
+		
 		boxPhimTrong.add(boxPhimRight);
 		boxPhimTrong.add(Box.createHorizontalStrut(10));
 		
@@ -138,7 +157,7 @@ public class DatVe extends JFrame{
 		boxPhim.add(Box.createHorizontalStrut(15));
 		
 		boxLeft.add(boxPhim);
-		boxLeft.add(Box.createVerticalStrut(30));
+		boxLeft.add(Box.createVerticalStrut(20));
 		
 		//===============================================================
 		Box boxKhachHang = new Box(BoxLayout.Y_AXIS);
@@ -171,7 +190,7 @@ public class DatVe extends JFrame{
 		boxKhachHang.add(boxKH3);
 		
 		boxLeft.add(boxKhachHang);
-		boxLeft.add(Box.createVerticalStrut(30));
+		boxLeft.add(Box.createVerticalStrut(20));
 		
 		//================================================================
 		Box boxChoNgoi = new Box(BoxLayout.Y_AXIS);
@@ -202,7 +221,7 @@ public class DatVe extends JFrame{
 		boxChoNgoi.add(boxCN3);
 		
 		boxLeft.add(boxChoNgoi);
-		boxLeft.add(Box.createVerticalStrut(30));
+		boxLeft.add(Box.createVerticalStrut(20));
 		
 		//=================================================================
 		Box boxDichVu = new Box(BoxLayout.Y_AXIS);
@@ -244,7 +263,7 @@ public class DatVe extends JFrame{
 		boxDichVu.add(Box.createVerticalStrut(15));
 		
 		boxLeft.add(boxDichVu);
-		boxLeft.add(Box.createVerticalStrut(30));
+		boxLeft.add(Box.createVerticalStrut(20));
 		
 		//===============================================================
 		Box boxThanhToan = new Box(BoxLayout.X_AXIS);
@@ -266,7 +285,7 @@ public class DatVe extends JFrame{
 		//================================================================
 		
 		JPanel pnlRight = new JPanel(new BorderLayout(10, 10));
-		pnlRight.setPreferredSize(new Dimension(650, 800));
+		pnlRight.setPreferredSize(new Dimension(650, 650));
 		pnlRight.setBorder(BorderFactory.createTitledBorder(""));
 
 		//---------------------------------------------------------------
@@ -317,11 +336,31 @@ public class DatVe extends JFrame{
 		
 		add(boxCent);
 		
-		setSize(1200, 800);
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setVisible(true);
+		hienThiThongTinPhim();
+		
+		btnThanhToan.addActionListener(this);
+		btnLamMoi.addActionListener(this);
+
 	}
+	
+	 private void hienThiThongTinPhim() {
+	        if (phimDangChon != null) {
+	            txtTenPhim.setText(phimDangChon.getTitle());
+	            try {
+	                ImageIcon icon = new ImageIcon(getClass().getResource(phimDangChon.getImg()));
+	                Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
+	                iconPhim.setImage(img);
+	                lbPhim.setIcon(new ImageIcon(img)); // Thêm JLabel lbPhim vào class
+	            } catch (Exception e) {
+	                System.err.println("Không thể load hình ảnh: " + phimDangChon.getImg());
+	            }
+	        }
+	    }
+	
+	 public void capNhatThongTinPhim(Movies phim) {
+		    this.phimDangChon = phim;
+		    hienThiThongTinPhim();
+		}
 	
 	private JPanel taoMauGiaiThich(String text, Color color) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -333,9 +372,37 @@ public class DatVe extends JFrame{
         p.add(new JLabel(text));
         return p;
     }
+	
+	public void xoaTrang() {
+		findDateChooser.setDate(new Date());
+		Date now = new Date();
+	    spnGioBD.setValue(now);
+	    txtTenKH.setText("");
+	    txtEmail.setText("");
+	    lbTenGhe.setText("");
+	    lbGia.setText("");
+	    spnBongNgo.setValue(0);
+	    spnNuocNgot.setValue(0);
+	}
 
 	
 	public static void main(String[] args) {
-		new DatVe();
+		new DatVe(phimDangChon);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		if(o.equals(btnThanhToan)) {
+			try {
+				new ThanhToan();
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
+			}
+		}
+		else {
+			xoaTrang();
+		}
+		
 	}
 }

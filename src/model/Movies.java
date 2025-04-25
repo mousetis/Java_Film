@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class Movies {
 
+	String img;
 	String movieID;
 	String title;
 	int duration;
@@ -19,10 +20,23 @@ public class Movies {
 	}
 
 
-	public Movies(String movieID, String title, int duration, String description, int ageRating,
+	public Movies(String img, String movieID, String title, int duration, String description, int ageRating,
 			LocalDate releaseDate) {
 		super();
+		this.img = img;
 		this.movieID = movieID;
+		this.title = title;
+		this.duration = duration;
+		this.description = description;
+		this.ageRating = ageRating;
+		this.releaseDate = releaseDate;
+	}
+	
+	
+	
+	public Movies(String img, String title, int duration, String description, int ageRating, LocalDate releaseDate) {
+		super();
+		this.img = img;
 		this.title = title;
 		this.duration = duration;
 		this.description = description;
@@ -31,40 +45,41 @@ public class Movies {
 	}
 
 
+	public String getImg() {
+		return img;
+	}
+
+	public void setImg(String img) {
+		this.img = img;
+	}
+
 	public String getMovieID() {
 		return movieID;
 	}
-
 
 	public void setMovieID(String movieID) {
 		this.movieID = movieID;
 	}
 
-
 	public String getTitle() {
 		return title;
 	}
-
 
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-
 	public int getDuration() {
 		return duration;
 	}
-
 
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
 
-
 	public String getDescription() {
 		return description;
 	}
-
 
 	public void setDescription(String description) {
 		this.description = description;

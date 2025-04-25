@@ -43,6 +43,7 @@ public class ThemNV extends JPanel implements ActionListener{
 	private JButton btnThem;
 	private JLabel lbQuyen;
 	private JLabel lbTitle;
+	private JButton btnXoaTrang;
 
 	public ThemNV() {
 		//font chữ
@@ -76,6 +77,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		boxLeft1.add(Box.createHorizontalStrut(15));
 		boxLeft1.add(txtTenNV = new JTextField(30));
 		txtTenNV.setPreferredSize(new Dimension(25, 30));
+		txtTenNV.requestFocus();
 		boxLeft.add(boxLeft1);
 		boxLeft.add(Box.createVerticalStrut(15));
 		
@@ -83,7 +85,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		Box boxLeft2 = new Box(BoxLayout.X_AXIS);
 		boxLeft2.add(lbSDT = new JLabel("SĐT:"));
 		lbSDT.setFont(font);
-		boxLeft2.add(Box.createHorizontalStrut(80));
+		boxLeft2.add(Box.createHorizontalStrut(90));
 		boxLeft2.add(txtSDT = new JTextField(30));
 		txtSDT.setPreferredSize(new Dimension(25, 30));
 		boxLeft.add(boxLeft2);
@@ -93,7 +95,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		Box boxLeft3 = new Box(BoxLayout.X_AXIS);
 		boxLeft3.add(lbGioiTinh = new JLabel("Giới tính:"));
 		lbGioiTinh.setFont(font);
-		boxLeft3.add(Box.createHorizontalStrut(50));
+		boxLeft3.add(Box.createHorizontalStrut(60));
 		boxLeft3.add(rdNam = new JRadioButton("Nam"));
 		rdNam.setFont(font);
 		boxLeft3.add(Box.createHorizontalStrut(10));
@@ -102,6 +104,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		rdPhai = new ButtonGroup();
 		rdPhai.add(rdNam);
 		rdPhai.add(rdNu);
+		rdNam.setSelected(true);
 		boxLeft3.add(Box.createHorizontalStrut(200));
 		boxLeft.add(boxLeft3);
 		boxLeft.add(Box.createVerticalStrut(15));
@@ -110,7 +113,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		Box boxLeft4 = new Box(BoxLayout.X_AXIS);
 		boxLeft4.add(lbEmail = new JLabel("Email:"));
 		lbEmail.setFont(font);
-		boxLeft4.add(Box.createHorizontalStrut(70));
+		boxLeft4.add(Box.createHorizontalStrut(80));
 		boxLeft4.add(txtEmail = new JTextField(30));
 		txtEmail.setPreferredSize(new Dimension(25, 30));
 		boxLeft.add(boxLeft4);
@@ -129,7 +132,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		Box boxRight1 = new Box(BoxLayout.X_AXIS);
 		boxRight1.add(lbQuyen = new JLabel("Quyền:"));
 		lbQuyen.setFont(font);
-		boxRight1.add(Box.createHorizontalStrut(35));
+		boxRight1.add(Box.createHorizontalStrut(45));
 		comboxQuyen = new JComboBox<>();
 		comboxQuyen.addItem("Nhân viên");
 		comboxQuyen.addItem("Quản lý");
@@ -143,7 +146,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		Box boxRight2 = new Box(BoxLayout.X_AXIS);
 		boxRight2.add(lbMatKhau = new JLabel("Password:"));
 		lbMatKhau.setFont(font);
-		boxRight2.add(Box.createHorizontalStrut(15));
+		boxRight2.add(Box.createHorizontalStrut(20));
 		boxRight2.add(txtMatKhau = new JTextField(30));
 		txtMatKhau.setPreferredSize(new Dimension(25, 30));
 		boxRight.add(boxRight2);
@@ -169,7 +172,11 @@ public class ThemNV extends JPanel implements ActionListener{
 		pnlGird2.add(btnThem = new JButton("Thêm"));
 		btnThem.setFont(font);
 		btnThem.setBackground(Color.CYAN);
-		btnThem.setPreferredSize(new Dimension(150, 30));
+		pnlGird2.add(Box.createHorizontalStrut(30));
+		pnlGird2.add(btnXoaTrang = new JButton("Xóa trắng"));
+		btnXoaTrang.setFont(font);
+		btnXoaTrang.setBackground(Color.GREEN);
+		btnXoaTrang.setPreferredSize(new Dimension(150, 30));
 		
 		
 		//Thêm khung thứ nhất và khung thứ hai vào khung tổng
@@ -182,11 +189,8 @@ public class ThemNV extends JPanel implements ActionListener{
 		
 		
 		btnLayMK.addActionListener(this);
+		btnXoaTrang.addActionListener(this);
 		
-//		setSize(1000, 600);
-//		setLocationRelativeTo(null);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		setVisible(true);
 	}
 	
 	
@@ -205,11 +209,22 @@ public class ThemNV extends JPanel implements ActionListener{
 	public static void main(String[] args) {
 		new ThemNV();
 	}
+	
+	public void xoaTrang() {
+		txtTenNV.setText("");
+		txtSDT.setText("");
+		txtEmail.setText("");
+		rdNam.setSelected(true);
+		comboxQuyen.setSelectedIndex(0);
+		txtMatKhau.setText("");
+		txtTenNV.requestFocus();
+	}
 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnLayMK) {
+		Object o = e.getSource();
+		if (o.equals(btnLayMK)) {
 	        String email = txtEmail.getText().trim();
 	        if (email.isEmpty()) {
 	            JOptionPane.showMessageDialog(null, "Vui lòng nhập email!");
@@ -226,6 +241,10 @@ public class ThemNV extends JPanel implements ActionListener{
 	            JOptionPane.showMessageDialog(null, "Lỗi gửi email: " + ex.getMessage());
 	        }
 	    
+		}
+		
+		else if(o.equals(btnXoaTrang)) {
+			xoaTrang();
 		}
 	}
 }

@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -27,7 +29,7 @@ import javax.swing.table.TableRowSorter;
 
 import com.toedter.calendar.JDateChooser;
 
-public class ThemLichChieu extends JPanel{
+public class ThemLichChieu extends JPanel implements ActionListener{
 	private JLabel lBTitle;
 	private JDateChooser findDateChooser;
 	private JLabel lbTimNgayChieu;
@@ -53,6 +55,7 @@ public class ThemLichChieu extends JPanel{
 	private JSpinner spnGioKT;
 	private DateEditor editorKT;
 	private JButton btnThemLichChieu;
+	private JButton btnXoaTrang;
 
 	public ThemLichChieu() {
 		Font font = new Font ("Arial",Font.BOLD,15);
@@ -95,6 +98,8 @@ public class ThemLichChieu extends JPanel{
 //		for(Phong p : ds.layDSPhong()) {
 //			cboPhongChieu.addItem(p.getTenPhong());
 //		}
+		cboPhongChieu.addItem("Phòng 1");
+		cboPhongChieu.addItem("Phòng 2");
 		boxLeft3.add(cboPhongChieu);
 		boxLeft3.add(Box.createHorizontalStrut(15));
 		boxLeft3.add(btnTimKiem = new JButton("Tìm kiếm"));
@@ -145,6 +150,8 @@ public class ThemLichChieu extends JPanel{
 //		for(Phim p: ds.layPhim()) {
 //			cboTenPhim.addItem(p.getTenPhim());
 //		}
+		cboTenPhim.addItem("Phim1");
+		cboTenPhim.addItem("Phim2");
 		cboTenPhim.setPreferredSize(new Dimension(230, 30));
 		boxRight1.add(cboTenPhim);
 		boxRight.add(boxRight1);
@@ -157,6 +164,7 @@ public class ThemLichChieu extends JPanel{
 		boxRight2.add(Box.createHorizontalStrut(15));
 		boxRight2.add(txtPhongChieu = new JTextField());
 		txtPhongChieu.setPreferredSize(new Dimension(230, 30));
+		txtPhongChieu.setText(cboPhongChieu.getSelectedItem().toString());
 		txtPhongChieu.setEnabled(false);   // ẩn không cho nhập phòng chiếu
 		boxRight.add(boxRight2);
 		boxRight.add(Box.createVerticalStrut(35));
@@ -214,6 +222,11 @@ public class ThemLichChieu extends JPanel{
 		btnThemLichChieu.setFont(font);
 		btnThemLichChieu.setBackground(Color.CYAN);
 		btnThemLichChieu.setPreferredSize(new Dimension(25, 30));
+		boxRight6.add(Box.createHorizontalStrut(20));
+		boxRight6.add(btnXoaTrang = new JButton("Xóa trắng"));
+		btnXoaTrang.setFont(font);
+		btnXoaTrang.setBackground(Color.GREEN);
+		btnXoaTrang.setPreferredSize(new Dimension(25, 30));
 		boxRight.add(boxRight6);
 		boxRight.add(Box.createVerticalStrut(25));
 		
@@ -225,13 +238,45 @@ public class ThemLichChieu extends JPanel{
 		add(boxCent);
 		
 		
-//		setSize(1000, 600);
-//		setLocationRelativeTo(null);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		setVisible(true);
+		cboPhongChieu.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        if (cboPhongChieu.getSelectedItem() != null) {
+		            txtPhongChieu.setText(cboPhongChieu.getSelectedItem().toString());
+		        }
+		    }
+		});
+		
+		spnGioBD.addChangeListener(e -> {
+		    Date gioBDMoi = (Date) spnGioBD.getValue();
+		    Date gioKTMoi = new Date(gioBDMoi.getTime() + 2 * 60 * 60 * 1000); // +2 tiếng
+		    spnGioKT.setValue(gioKTMoi);
+		});
+		
+		btnXoaTrang.addActionListener(this);
+		
+	}
+	
+	public void xoaTrang() {
+		findDateChooser.setDate(new Date());
+		cboPhongChieu.setSelectedIndex(0);
+		cboTenPhim.setSelectedIndex(0);
+		dateChooser.setDate(new Date());
+		Date now = new Date();
+	    spnGioBD.setValue(now);
+		txtPhongChieu.requestFocus();
 	}
 	
 	public static void main(String[] args) {
 		new ThemLichChieu();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		if(o.equals(btnXoaTrang)) {
+			xoaTrang();
+		}
+		
 	}
 }

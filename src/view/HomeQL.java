@@ -3,12 +3,18 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -17,16 +23,60 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 public class HomeQL extends JFrame implements ActionListener{
 	private Container panelImage;
 	private JMenuItem menuItemExit;
 	private CardLayout cardLayout;
 	private JPanel cardPanel;
+	private JPanel headerPanel;
 
 	public HomeQL() {
 		setTitle("Trang quản lý");
 		Font font = new Font ("Arial",Font.BOLD,16);
+		
+		headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.LIGHT_GRAY);
+        headerPanel.setPreferredSize(new Dimension(0, 50));
+
+        // Logo bên trái
+        ImageIcon iconLogo = new ImageIcon(getClass().getResource("/img/CGV_4d6c9e8f1f.png"));
+        Image imgLogo = iconLogo.getImage().getScaledInstance(100, 50, Image.SCALE_SMOOTH); // width, height
+        JLabel logoLabel = new JLabel(new ImageIcon(imgLogo));
+        
+        logoLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); // Đổi con trỏ chuột
+
+        // Xử lý khi nhấn vào logo để quay lại danh sách phim
+        logoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                cardLayout.show(cardPanel, "HOME");
+            }
+        });
+        logoLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        headerPanel.add(logoLabel, BorderLayout.WEST);
+
+        // Account bên phải
+        ImageIcon iconAcc = new ImageIcon(getClass().getResource("/img/account-icon-33-removebg-preview.png"));
+        Image imgAcc = iconAcc.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        JLabel lbAcc = new JLabel(new ImageIcon(imgAcc));
+        
+        lbAcc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        lbAcc.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); // Đổi con trỏ chuột
+
+        
+        // Xử lý khi nhấn vào logo account sẽ chuyển đến panel thông tin nhân viên
+        lbAcc.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                cardLayout.show(cardPanel, "THONG_TIN_NV"); // Chuyển sang màn hình thông tin NV
+            }
+        });
+        
+        headerPanel.add(lbAcc, BorderLayout.EAST);
+
+//        add(headerPanel, BorderLayout.NORTH);
 		
 		 // Panel chứa các menu
 		JMenuBar menuBar = new JMenuBar();
@@ -73,15 +123,27 @@ public class HomeQL extends JFrame implements ActionListener{
         menuThongKe.add(itemDoanhThu);
         menuThongKe.add(itemVeBan);
         menuThongKe.add(itemPhimChieu);
-        
+       
         
         // Thêm menu vào thanh menu bar
+        menuBar.add(Box.createVerticalStrut(15));
         menuBar.add(menuNhanVien);
+        menuBar.add(Box.createHorizontalStrut(30));
         menuBar.add(menuPhim);
+        menuBar.add(Box.createHorizontalStrut(30));
         menuBar.add(menuLichChieu);
+        menuBar.add(Box.createHorizontalStrut(30));
         menuBar.add(menuThongKe);
+        menuBar.setBorder(BorderFactory.createEmptyBorder()); //Xóa border của menu
         
-        setJMenuBar(menuBar);
+        // Tạo panel trung tâm để căn giữa menu
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        centerPanel.setBackground(Color.LIGHT_GRAY);
+        centerPanel.add(menuBar);
+        
+        headerPanel.add(centerPanel, BorderLayout.CENTER);
+        
+        add(headerPanel, BorderLayout.NORTH);
         
         
         cardLayout = new CardLayout();
@@ -91,7 +153,7 @@ public class HomeQL extends JFrame implements ActionListener{
         ImageIcon icon = new ImageIcon(getClass().getResource("/img/homeQL.jpg"));
 
         // Resize ảnh theo kích thước frame
-        Image scaledImage = icon.getImage().getScaledInstance(1000, 600 - menuBar.getHeight(), java.awt.Image.SCALE_SMOOTH);
+        Image scaledImage = icon.getImage().getScaledInstance(1000, 700 - headerPanel.getHeight(), java.awt.Image.SCALE_SMOOTH);
 
         // Gắn ảnh vào JLabel
         JLabel lblImage = new JLabel(new ImageIcon(scaledImage));
@@ -102,6 +164,7 @@ public class HomeQL extends JFrame implements ActionListener{
         cardPanel.add(lblImage, "HOME");
 
         // Thêm các màn hình con vào cardPanel
+        cardPanel.add(new ThongTinNNV(this), "THONG_TIN_NV");
         cardPanel.add(new ListNV(), "NHAN_VIEN");
         cardPanel.add(new ThemNV(), "THEM_NHAN_VIEN");
         cardPanel.add(new ListPhim(), "PHIM");
@@ -127,7 +190,7 @@ public class HomeQL extends JFrame implements ActionListener{
         itemPhimChieu.addActionListener(this);
 
         
-		setSize(1000, 600);
+		setSize(1000, 700);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);

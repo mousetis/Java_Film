@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -24,7 +26,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-public class ListPhim extends JPanel{
+public class ListPhim extends JPanel implements ActionListener{
 
 	private JLabel lbTimMaPhim;
 	private JTextField txtTimMaPhim;
@@ -46,7 +48,7 @@ public class ListPhim extends JPanel{
 	private JRadioButton rdTren18;
 	private ButtonGroup rdTuoi;
 	private JLabel lbGiaVe;
-	private Component spinnerGiaVe;
+	private JSpinner spinnerGiaVe;
 	private JLabel lbThoiLuong;
 	private JSpinner spinnerThoiLuong;
 	private JLabel lbThoiGianTao;
@@ -54,6 +56,7 @@ public class ListPhim extends JPanel{
 	private JButton btnSua;
 	private JButton btnDungChieu;
 	private JLabel lbTitle2;
+	private JButton btnXoaTrang;
 
 	public ListPhim() {
 		Font font = new Font ("Arial",Font.BOLD,16);
@@ -71,10 +74,11 @@ public class ListPhim extends JPanel{
 		Box boxLeft1 = new Box(BoxLayout.X_AXIS);
 		boxLeft1.add(lbTimMaPhim = new JLabel("Mã phim:"));
 		lbTimMaPhim.setFont(font);
-		boxLeft1.add(Box.createHorizontalStrut(18));
+		boxLeft1.add(Box.createHorizontalStrut(20));
 		boxLeft1.add(txtTimMaPhim = new JTextField(20));
 		txtTimMaPhim.setPreferredSize(new Dimension(25, 30));
-		boxLeft1.add(Box.createHorizontalStrut(110));
+		txtTimMaPhim.requestFocus();
+		boxLeft1.add(Box.createHorizontalStrut(115));
 		boxLeft.add(boxLeft1);
 		boxLeft.add(Box.createVerticalStrut(15));
 		
@@ -169,6 +173,7 @@ public class ListPhim extends JPanel{
 		rdTuoi.add(rdTreEm);
 		rdTuoi.add(rdTren16);
 		rdTuoi.add(rdTren18);
+		rdTren18.setSelected(true);
 		boxRight.add(boxRight3);
 		boxRight3.add(Box.createHorizontalStrut(95));
 		boxRight.add(Box.createVerticalStrut(20));
@@ -216,6 +221,10 @@ public class ListPhim extends JPanel{
 		boxRight7.add(btnDungChieu = new JButton("Dừng chiếu"));
 		btnDungChieu.setFont(font);
 		btnDungChieu.setBackground(Color.RED);
+		boxRight7.add(Box.createHorizontalStrut(15));
+		boxRight7.add(btnXoaTrang = new JButton("Xóa trắng"));
+		btnXoaTrang.setFont(font);
+		btnXoaTrang.setBackground(Color.GREEN);
 		boxRight.add(boxRight7);
 		boxRight.add(Box.createVerticalStrut(20));
 		
@@ -229,13 +238,33 @@ public class ListPhim extends JPanel{
 		//Thêm khung tổng vào JFrame
 		add(pnlCent);
 		
-//		setSize(1000, 600);
-//		setLocationRelativeTo(null);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		setVisible(true);
+		
+		btnXoaTrang.addActionListener(this);
+		
+	}
+	
+	public void xoaTrang() {
+		txtTimMaPhim.setText("");
+		txtTimTenPhim.setText("");
+		txtMaPhim.setText("");
+		txtTenPhim.setText("");
+		rdTren18.setSelected(true);
+		spinnerGiaVe.setValue(0);
+		spinnerThoiLuong.setValue(0);
+		lbThoiGian.setText("");
+		txtMaPhim.requestFocus();
 	}
 	
 	public static void main(String[] args) {
 		new ListPhim();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		if(o.equals(btnXoaTrang)) {
+			xoaTrang();
+		}
+		
 	}
 }

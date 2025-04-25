@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.print.Book;
 
 import javax.swing.Box;
@@ -24,7 +26,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-public class ListNV extends JPanel{
+public class ListNV extends JPanel implements ActionListener{
 	private JLabel lbMaNV;
 	private JTextField txtMaNV;
 	private JLabel lbTenNV;
@@ -46,13 +48,13 @@ public class ListNV extends JPanel{
 	private JCheckBox cbNghiViec;
 	private JLabel lbQuyen;
 	private JButton btnLuu;
-	private JButton btnCapMK;
 	private JButton btnNghiViec;
 	private JComboBox comboxQuyen;
 	private ButtonGroup rdPhai;
 	private JButton btnTim;
 	private JLabel lbMaNV2;
 	private JButton btnTimKiem;
+	private JButton btnXoaTrang;
 
 	public ListNV() {
 		Font font = new Font ("Times New Roman",Font.BOLD,16);
@@ -67,6 +69,7 @@ public class ListNV extends JPanel{
 		box1.add(Box.createHorizontalStrut(20));
 		box1.add(txtMaNV = new JTextField(25));
 		txtMaNV.setPreferredSize(new Dimension(25, 30));
+		txtMaNV.requestFocus();
 		box1.add(Box.createHorizontalStrut(30));
 		box1.add(lbTenNV = new JLabel("Tên nhân viên:"));
 		lbTenNV.setFont(font);
@@ -166,6 +169,7 @@ public class ListNV extends JPanel{
 		rdPhai = new ButtonGroup();
 		rdPhai.add(rdNam);
 		rdPhai.add(rdNu);
+		rdNam.setSelected(true);
 		boxRight5.add(Box.createHorizontalStrut(190));
 		box2Right.add(boxRight5);
 		box2Right.add(Box.createVerticalStrut(20));
@@ -191,27 +195,45 @@ public class ListNV extends JPanel{
 		btnLuu.setFont(font);
 		btnLuu.setBackground(Color.CYAN);
 		boxRight7.add(Box.createHorizontalStrut(20));
-		boxRight7.add(btnCapMK = new JButton("Cấp mật khẩu"));
-		btnCapMK.setFont(font);
-		btnCapMK.setBackground(Color.YELLOW);
-		boxRight7.add(Box.createHorizontalStrut(20));
 		boxRight7.add(btnNghiViec = new JButton("Nghỉ việc"));
 		btnNghiViec.setFont(font);
 		btnNghiViec.setBackground(Color.red);
+		boxRight7.add(Box.createHorizontalStrut(20));
+		boxRight7.add(btnXoaTrang = new JButton("Xóa trắng"));
+		btnXoaTrang.setFont(font);
+		btnXoaTrang.setBackground(Color.GREEN);
 		box2Right.add(boxRight7);
 		pnlRight.add(box2Right);
 		box2.add(pnlRight);
 		add(box2, BorderLayout.CENTER);
 		
+		btnXoaTrang.addActionListener(this);
 		
-//		setSize(1000, 600);
-//		setLocationRelativeTo(null);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		setVisible(true);
 	}
 
 	
 	public static void main(String[] args) {
 		new ListNV();
+	}
+
+	public void xoaTrang() {
+		txtMaNV.setText("");
+		txtTenNV.setText("");
+		txtMaNhanVien.setText("");
+		txtHoTen.setText("");
+		txtSDT.setText("");
+		txtEmail.setText("");
+		rdNam.setSelected(true);
+		comboxQuyen.setSelectedIndex(0);
+		txtMaNhanVien.requestFocus();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
+		if(o.equals(btnXoaTrang)) {
+			xoaTrang();
+		}
+		
 	}
 }

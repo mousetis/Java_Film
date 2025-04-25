@@ -81,6 +81,7 @@ public class Login extends JFrame implements ActionListener{
 		add(pnlCent, BorderLayout.CENTER);
 		
 		btnQL.addActionListener(this);
+		btnNV.addActionListener(this);
 		
 		setSize(500, 500);
 		setLocationRelativeTo(null);
@@ -94,6 +95,7 @@ public class Login extends JFrame implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		Object o = e.getSource();
 		 String email = txtEmail.getText().trim();
 	     String password = txtPassword.getText().trim();
 
@@ -116,7 +118,13 @@ public class Login extends JFrame implements ActionListener{
 	     
 	     // Ví dụ: kiểm tra tài khoản quản lý
 	     if (email.equals("admin@gmail.com") && password.equals("admin123")) {
-	         new HomeQL();
+	    	 if(o.equals(btnNV)) {
+	    		 new HomeNV();
+	    	 }
+	    	 else
+	    	 {
+	    		 new HomeQL();
+	    	 }
 	         dispose();
 	     } else {
 	         JOptionPane.showMessageDialog(this, "Email hoặc mật khẩu không đúng!", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
