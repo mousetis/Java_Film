@@ -17,6 +17,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import model.Employee;
+
 public class Login extends JFrame implements ActionListener{
 	private JLabel lbtitle;
 	private JLabel lbEmail;
@@ -25,10 +27,12 @@ public class Login extends JFrame implements ActionListener{
 	private JTextField txtPassword;
 	private JButton btnNV;
 	private JButton btnQL;
+	private services.Login service;
+	private dao.Login dao;
 
 	public Login() {
 		setTitle("Đăng nhập");
-		
+		service = new services.Login(dao);
 		JPanel pnlNor = new JPanel();
 		pnlNor.add(lbtitle = new JLabel("Đăng nhập hệ thống"));
 		Font font = new Font ("Times New Roman",Font.BOLD,25);
@@ -61,26 +65,26 @@ public class Login extends JFrame implements ActionListener{
 		
 		Box box3 = new Box(BoxLayout.X_AXIS);
 		box3.add(Box.createHorizontalStrut(75));
-		box3.add(btnNV = new JButton("Đăng nhập với nhân viên"));
+		box3.add(btnNV = new JButton("Đăng nhập"));
 		btnNV.setPreferredSize(new Dimension(300, 30));
 		btnNV.setMaximumSize(new Dimension(300, 30));
 		btnNV.setMinimumSize(new Dimension(300, 30));
 		boxCent.add(Box.createVerticalStrut(30));
 		boxCent.add(box3);
 		
-		Box box4 = new Box(BoxLayout.X_AXIS);
-		box4.add(Box.createHorizontalStrut(75));
-		box4.add(btnQL = new JButton("Đăng nhập với quản lý"));
-		btnQL.setPreferredSize(new Dimension(300, 30));
-		btnQL.setMaximumSize(new Dimension(300, 30));
-		btnQL.setMinimumSize(new Dimension(300, 30));
-		boxCent.add(Box.createVerticalStrut(30));
-		boxCent.add(box4);
+//		Box box4 = new Box(BoxLayout.X_AXIS);
+//		box4.add(Box.createHorizontalStrut(75));
+//		box4.add(btnQL = new JButton("Đăng nhập với quản lý"));
+//		btnQL.setPreferredSize(new Dimension(300, 30));
+//		btnQL.setMaximumSize(new Dimension(300, 30));
+//		btnQL.setMinimumSize(new Dimension(300, 30));
+//		boxCent.add(Box.createVerticalStrut(30));
+//		boxCent.add(box4);
 		
 		pnlCent.add(boxCent);
 		add(pnlCent, BorderLayout.CENTER);
 		
-		btnQL.addActionListener(this);
+//		btnQL.addActionListener(this);
 		btnNV.addActionListener(this);
 		
 		setSize(500, 500);
@@ -92,42 +96,48 @@ public class Login extends JFrame implements ActionListener{
 	public static void main(String[] args) {
 		new Login();
 	}
+	
+	//check role
+	private void checkRole(String role) {
+		switch (role) {
+			case "Quản lý": 
+				new HomeQL().setVisible(true);;
+				break;
+			case "Nhân viên":
+				new HomeNV().setVisible(true);;
+				break;
+			default:
+				JOptionPane.showMessageDialog(this, "Chức vụ không hợp lệ", "Lỗi", JOptionPane.ERROR_MESSAGE);
+				System.exit(0);
+		}
+	}
+	
+	//login
+	private void login() {
+		String email = txtEmail.getText().trim();
+	    String password = txtPassword.getText().trim();
+	    if(txtEmail.getText().equalsIgnoreCase("")) {
+	    	JOptionPane.showMessageDialog(this, "Vui lòng nhập Email", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
+	    }
+	    if(txtPassword.getText().equalsIgnoreCase("")) {
+	    	JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
+	    }
+	    if(!txtEmail.getText().isEmpty() && !txtPassword.getText().isEmpty()) {
+	    	Employee nv = service.checkLogin(email, password);
+		    if(nv != null) {
+		    	checkRole(nv.getRole());
+		    	this.dispose();
+		    }else {
+		    	JOptionPane.showMessageDialog(this, "Email hoặc mật khẩu không đúng", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
+		    }
+	    } 
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		 String email = txtEmail.getText().trim();
-	     String password = txtPassword.getText().trim();
-
-	     if (email.isEmpty()) {
-	         JOptionPane.showMessageDialog(this, "Vui lòng nhập Email.", "Thông báo", JOptionPane.WARNING_MESSAGE);
-	         txtEmail.requestFocus();
-	         return;
-	     }
-	     
-	     if(password.isEmpty()) {
-	    	 JOptionPane.showMessageDialog(this, "Vui lòng nhập Mật khẩu.", "Thông báo", JOptionPane.WARNING_MESSAGE);
-	    	 txtPassword.requestFocus();
-	         return;
-	     }
-
-	     if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-	         JOptionPane.showMessageDialog(this, "Email không hợp lệ. Vui lòng nhập đúng định dạng email!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-	         return;
-	     }
-	     
-	     // Ví dụ: kiểm tra tài khoản quản lý
-	     if (email.equals("admin@gmail.com") && password.equals("admin123")) {
-	    	 if(o.equals(btnNV)) {
-	    		 new HomeNV();
-	    	 }
-	    	 else
-	    	 {
-	    		 new HomeQL();
-	    	 }
-	         dispose();
-	     } else {
-	         JOptionPane.showMessageDialog(this, "Email hoặc mật khẩu không đúng!", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
-	     }
+		if(o == btnNV) {
+			login();
+		}
 	}
 }

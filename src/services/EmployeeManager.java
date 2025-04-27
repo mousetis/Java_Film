@@ -36,8 +36,8 @@ public class EmployeeManager {
 	}
 	
 	//thêm nhân viên
-	public boolean addEmployee(Employee nv) {
-		return dao.addEmployee(nv);
+	public boolean addEmployee(Employee nv, String email, String password) {
+		return dao.addEmployee(nv, email, password);
 	}
 	
 	//lấy data của nhân viên

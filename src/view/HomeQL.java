@@ -75,8 +75,6 @@ public class HomeQL extends JFrame implements ActionListener{
         });
         
         headerPanel.add(lbAcc, BorderLayout.EAST);
-
-//        add(headerPanel, BorderLayout.NORTH);
 		
 		 // Panel chứa các menu
 		JMenuBar menuBar = new JMenuBar();
@@ -211,6 +209,7 @@ public class HomeQL extends JFrame implements ActionListener{
 	        switch (text) {
 	            case "Danh sách nhân viên":
 	                cardLayout.show(cardPanel, "NHAN_VIEN");
+	                new ListNV().loadDataToTable();
 	                break;
 	            case "Thêm nhân viên":
 	                cardLayout.show(cardPanel, "THEM_NHAN_VIEN");

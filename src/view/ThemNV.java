@@ -23,7 +23,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+import model.Employee;
 import services.EmailUtils;
+import services.EmployeeManager;
 
 public class ThemNV extends JPanel implements ActionListener{
 	private JLabel lbTenNV;
@@ -44,8 +46,11 @@ public class ThemNV extends JPanel implements ActionListener{
 	private JLabel lbQuyen;
 	private JLabel lbTitle;
 	private JButton btnXoaTrang;
+	private services.EmployeeManager service;
+	private dao.EmployeeManager dao;
 
 	public ThemNV() {
+		service = new EmployeeManager(dao);
 		//font chữ
 		Font font = new Font ("Arial",Font.BOLD,16);
 		Font font2 = new Font ("Arial",Font.BOLD,23);
@@ -190,6 +195,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		
 		btnLayMK.addActionListener(this);
 		btnXoaTrang.addActionListener(this);
+		btnThem.addActionListener(this);
 		
 	}
 	
@@ -219,6 +225,63 @@ public class ThemNV extends JPanel implements ActionListener{
 		txtMatKhau.setText("");
 		txtTenNV.requestFocus();
 	}
+	
+	//check rỗng
+	public boolean checkIsEmpty() {
+		if (txtTenNV.getText().trim().isEmpty()) {
+	        JOptionPane.showMessageDialog(this, "Vui lòng nhập Tên nhân viên!", "Lỗi!", JOptionPane.ERROR_MESSAGE);
+	        txtTenNV.requestFocus();
+	        return false;
+	    }
+	    if (txtSDT.getText().trim().isEmpty()) {
+	        JOptionPane.showMessageDialog(this, "Vui lòng nhập Số điện thoại!", "Lỗi!", JOptionPane.ERROR_MESSAGE);
+	        txtSDT.requestFocus();
+	        return false;
+	    }
+	    if (txtEmail.getText().trim().isEmpty()) {
+	        JOptionPane.showMessageDialog(this, "Vui lòng nhập Email!", "Lỗi!", JOptionPane.ERROR_MESSAGE);
+	        txtEmail.requestFocus();
+	        return false;
+	    }
+	    if (txtMatKhau.getText().trim().isEmpty()) {
+	        JOptionPane.showMessageDialog(this, "Vui lòng nhấn nút lấy Password!", "Lỗi!", JOptionPane.ERROR_MESSAGE);
+	        txtMatKhau.requestFocus();
+	        return false;
+	    }
+	    return true;
+	}
+	
+	//thêm nhân viên
+	public void addEmployee() {
+		Employee nv = new Employee();
+		boolean res;
+		if(checkIsEmpty()) {
+			String name = txtTenNV.getText();
+			String phone = txtSDT.getText();
+			String email = txtEmail.getText();
+			String password = txtMatKhau.getText();
+			boolean gender;
+			if(rdNam.isSelected()) {
+				gender = true;
+			} else {
+				gender = false;
+			}
+			String role = (String) comboxQuyen.getSelectedItem();
+			nv.setEmployeeName(name);
+			nv.setGender(gender);
+			nv.setPhone(phone);
+			nv.setRole(role);
+			nv.setEmail(email);
+			
+			res = service.addEmployee(nv, email, password);
+			if(res) {
+				JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(this, "Thêm không thành công!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+		
+	}
 
 
 	@Override
@@ -227,7 +290,7 @@ public class ThemNV extends JPanel implements ActionListener{
 		if (o.equals(btnLayMK)) {
 	        String email = txtEmail.getText().trim();
 	        if (email.isEmpty()) {
-	            JOptionPane.showMessageDialog(null, "Vui lòng nhập email!");
+	            JOptionPane.showMessageDialog(null, "Vui lòng nhập email!", "Lỗi!", JOptionPane.ERROR_MESSAGE);
 	            return;
 	        }
 
@@ -236,15 +299,15 @@ public class ThemNV extends JPanel implements ActionListener{
 
 	        try {
 	            EmailUtils.guiEmail(email, matKhauMoi);
-	            JOptionPane.showMessageDialog(null, "Mật khẩu mới đã được gửi về email!");
+	            JOptionPane.showMessageDialog(null, "Mật khẩu mới đã được gửi về email!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 	        } catch (Exception ex) {
 	            JOptionPane.showMessageDialog(null, "Lỗi gửi email: " + ex.getMessage());
 	        }
 	    
-		}
-		
-		else if(o.equals(btnXoaTrang)) {
+		} else if(o.equals(btnXoaTrang)) {
 			xoaTrang();
+		} else if(o == btnThem) {
+			addEmployee();
 		}
 	}
 }

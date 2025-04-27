@@ -1,5 +1,6 @@
 package dao;
 
+import java.sql.Statement;
 import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +9,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import connectDB.Connected;
 import model.Employee;
@@ -117,8 +119,8 @@ public class EmployeeManager {
 			if(keyID != null && !keyID.isEmpty()) {
 				stmt = con.prepareStatement(sql);
 				stmt.setString(1, keyID);
-				ResultSet res = stmt.executeQuery();
-				return true;
+				int res = stmt.executeUpdate();
+				return res > 0;
 			}
 			
 		} catch (SQLException e) {
@@ -130,7 +132,7 @@ public class EmployeeManager {
 
 	//cập nhật nhân viên
 	public boolean updateEmployee(String keyID, Employee nv){
-		String sql ="update Employee set EmployeeID = ?, EmployeeName = ?, Role = ?, Phone = ?, Email = ?, Address = ?, HireDate = ?, Salary = ?, Gender = ? where EmployeeID = ?";
+		String sql ="update Employee set EmployeeID = ?, EmployeeName = ?, Role = ?, Phone = ?, Email = ?, Gender = ? where EmployeeID = ?";
 		try {
 			if(keyID != null & !keyID.isEmpty()) {
 				stmt = con.prepareStatement(sql);
@@ -139,18 +141,15 @@ public class EmployeeManager {
 				stmt.setString(3, nv.getRole());
 				stmt.setString(4, nv.getPhone());
 				stmt.setString(5, nv.getEmail());
-				stmt.setString(6, nv.getAddress());
-				stmt.setDate(7, localDateToSqlDate(nv.getHireDate()));
-				stmt.setDouble(8, nv.getSalary());
 				if(nv.isGender()) {
-					stmt.setString(9, "Nam");
+					stmt.setString(6, "Nam");
 				} else {
-					stmt.setString(9, "Nữ");
+					stmt.setString(6, "Nữ");
 				}
-				stmt.setString(10, keyID);
+				stmt.setString(7, keyID);
 				
-				ResultSet res = stmt.executeQuery();
-				return true;
+				int res = stmt.executeUpdate();
+				return res > 0;
 			}
 		} catch (SQLException e) {
 			System.err.println("Can not update for: " + keyID + ": " + e.getMessage());
@@ -158,33 +157,70 @@ public class EmployeeManager {
 		return false;
 	}
 	
+	//random mã 
+	public String randomID(String ch, String tableName, String tableID) throws SQLException{
+		Random random = new Random();
+		String ID;
+		boolean exists = false;
+		do {
+			int number = random.nextInt(9000) + 1000;
+			ID = ch + number;
+			
+			String sql = "select count(*) from " + tableName +" where " + tableID + " = ?";
+			try(PreparedStatement ps = con.prepareStatement(sql)) {
+				ps.setString(1, ID);
+				ResultSet res = ps.executeQuery();
+				if(res.next()) {
+					exists = res.getInt(1) > 0;
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+				exists = true;
+			}
+		}while(exists);
+		return ID;
+	}
+	
 	//thêm nhân viên
-	public boolean addEmployee(Employee nv) {
-		String sql = "insert into Employee values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	public boolean addEmployee(Employee nv, String email, String password) {
+		String sql = "insert into Employee(EmployeeID, EmployeeName, Role, Phone, Email, Gender) values(?, ?, ?, ?, ?, ?)";
 		try {
 			if(nv != null) {
-				stmt = con.prepareStatement(sql);
-				stmt.setString(1, nv.getEmployeeID());
-				stmt.setString(2, nv.getEmployeeName());
-				stmt.setString(3, nv.getRole());
-				stmt.setString(4, nv.getPhone());
-				stmt.setString(5, nv.getEmail());
-				stmt.setString(6, nv.getAddress());
-				stmt.setDate(7, localDateToSqlDate(nv.getHireDate()));
-				stmt.setDouble(8, nv.getSalary());
+				
+				String ID = randomID("E","Employee", "EmployeeID");
+				nv.setEmployeeID(ID);
+				PreparedStatement stm;
+				stm = con.prepareStatement(sql);
+				stm.setString(1, nv.getEmployeeID());
+				stm.setString(2, nv.getEmployeeName());
+				stm.setString(3, nv.getRole());
+				stm.setString(4, nv.getPhone());
+				stm.setString(5, nv.getEmail());
 				if(nv.isGender()) {
-					stmt.setString(9, "Nam");
+					stm.setString(6, "Nam");
 				} else {
-					stmt.setString(9, "Nữ");
+					stm.setString(6, "Nữ");
 				}
 				
-				ResultSet res = stmt.executeQuery();
-				return true;
+				int res = stm.executeUpdate();
+				if(res > 0) {
+					String accountID = randomID("A", "Account", "AccountID");
+					String employeeID = nv.getEmployeeID();
+					String sqlInsertAccount = "insert into Account values (?, ?, ?, ?)";
+					PreparedStatement psAccount = con.prepareStatement(sqlInsertAccount);
+					psAccount.setString(1, accountID);
+					psAccount.setString(2, email);
+					psAccount.setString(3, password);
+					psAccount.setString(4, employeeID);
+					
+					int resAccount = psAccount.executeUpdate();
+					return resAccount > 0;
+				}	
 			}
 		} catch (SQLException e) {
 			System.err.println("Can not add employee: " + e.getMessage());
 		}
-		return true;
+		return false;
 	}
 	
 	//lấy dữ liệu nhân viên

@@ -20,6 +20,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -60,14 +61,13 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 	private ButtonGroup rdPhai;
 	private JButton btnTim;
 	private JLabel lbMaNV2;
-	private JButton btnTimKiem;
 	private JButton btnXoaTrang;
 	private services.EmployeeManager service;
 	private dao.EmployeeManager dao;
+	private ArrayList<Employee> list = new ArrayList<Employee>();
 	public ListNV() {
 		Font font = new Font ("Times New Roman",Font.BOLD,16);
 		service = new EmployeeManager(dao);
-		
 		//Phần nhập mã nhân viên và tên nhân viên cần tìm.
 		JPanel pnlNor = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		pnlNor.add(Box.createVerticalStrut(50));
@@ -208,7 +208,7 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 		btnNghiViec.setFont(font);
 		btnNghiViec.setBackground(Color.red);
 		boxRight7.add(Box.createHorizontalStrut(20));
-		boxRight7.add(btnXoaTrang = new JButton("Xóa trắng"));
+		boxRight7.add(btnXoaTrang = new JButton("Refresh"));
 		btnXoaTrang.setFont(font);
 		btnXoaTrang.setBackground(Color.GREEN);
 		box2Right.add(boxRight7);
@@ -216,15 +216,18 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 		box2.add(pnlRight);
 		add(box2, BorderLayout.CENTER);
 
-		btnXoaTrang.addActionListener(this);
 		loadDataToTable();
+		btnXoaTrang.addActionListener(this);
+		btnTim.addActionListener(this);
+		btnNghiViec.addActionListener(this);
+		btnLuu.addActionListener(this);
 		table.addMouseListener(this);
 		
 	}
-
+	
 	//load dữ liệu lên bảng
 	public void loadDataToTable() {
-		ArrayList<Employee> list = new ArrayList<Employee>();
+		tblmodel.setRowCount(0);
 		list = service.getList();
 		for(Employee nv : list) {
 			tblmodel.addRow(new Object[] {
@@ -252,6 +255,100 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 		}
 		comboxQuyen.setSelectedItem(nv.getRole());
 	}
+	
+	//cập nhật bảng
+	public void updateTable(ArrayList<Employee> nv){
+        if(!nv.isEmpty()) {
+        	tblmodel.setRowCount(0);
+	        for (Employee emp : list) {
+	            tblmodel.addRow(new Object[]{
+	        		emp.getEmployeeID(),
+					emp.getEmployeeName(),
+					emp.getEmail()  
+            	});
+        	}
+        }
+        else{
+            JOptionPane.showMessageDialog(this,"Không tìm thông tin phù hợp","Thông báo",JOptionPane.ERROR_MESSAGE);
+        }
+    }
+	
+	//tìm nhân viên
+	public void findEmployee() {
+		String empID = txtMaNV.getText();
+		String empName = txtTenNV.getText();
+		list = service.findEmployees(empID,empName);
+		updateTable(list);
+	}
+	
+	//xoá nhân viên
+	public void deleteEmployee() {
+		int rowSelected = table.getSelectedRow();
+		if(rowSelected == -1) {
+			JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần xoá!", "Lỗi",JOptionPane.ERROR_MESSAGE);
+		}else {
+			rowSelected = table.convertRowIndexToModel(rowSelected);
+			String keyID = tblmodel.getValueAt(rowSelected, 0).toString();
+			boolean res;
+			res = service.deleteEmployee(keyID);
+			if(res) {
+				JOptionPane.showMessageDialog(this, "Xoá thành công!","Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(this, "Xoá không thành công!", "Lỗi",JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
+	//sửa thông tin nhân viên
+	public void updateEmployee() {
+		int rowSelected = table.getSelectedRow();
+		if(rowSelected == -1) {
+			JOptionPane.showMessageDialog(this, "Không có thông tin nào cập nhật!", "Lỗi",JOptionPane.ERROR_MESSAGE);
+		}else {
+			rowSelected = table.convertRowIndexToModel(rowSelected);
+			txtMaNhanVien.setEditable(false);
+			String keyID = tblmodel.getValueAt(rowSelected, 0).toString();
+			String name = txtHoTen.getText();
+			String phone = txtSDT.getText();
+			String email = txtEmail.getText();
+			boolean gender;
+			if(rdNam.isSelected()) {
+				gender = true;
+			}else {
+				gender = false;
+			}
+			String role = (String) comboxQuyen.getSelectedItem();
+			Employee nv = new Employee();
+			nv.setEmployeeID(keyID);
+			nv.setEmployeeName(name);
+			nv.setPhone(phone);
+			nv.setGender(gender);
+			nv.setEmail(email);
+			nv.setRole(role);
+			boolean res = service.updateEmployee(keyID, nv);
+			if(res) {
+				JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			}else {
+				JOptionPane.showMessageDialog(this, "Cập nhật không thành công!", "Lỗi",JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
+	//xoá trắng
+	public void xoaTrang() {
+		txtMaNV.setText("");
+		txtTenNV.setText("");
+		txtMaNhanVien.setText("");
+		txtHoTen.setText("");
+		txtSDT.setText("");
+		txtEmail.setText("");
+		rdNam.setSelected(true);
+		comboxQuyen.setSelectedIndex(0);
+		txtMaNhanVien.requestFocus();
+		loadDataToTable();
+	}
+
+	
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -283,19 +380,7 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 	}
 	
 	public static void main(String[] args) {
-		new ListNV();
-	}
-
-	public void xoaTrang() {
-		txtMaNV.setText("");
-		txtTenNV.setText("");
-		txtMaNhanVien.setText("");
-		txtHoTen.setText("");
-		txtSDT.setText("");
-		txtEmail.setText("");
-		rdNam.setSelected(true);
-		comboxQuyen.setSelectedIndex(0);
-		txtMaNhanVien.requestFocus();
+		new ListNV().loadDataToTable();;
 	}
 
 	@Override
@@ -303,8 +388,15 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 		Object o = e.getSource();
 		if(o.equals(btnXoaTrang)) {
 			xoaTrang();
+		} else if(o == btnTim) {
+			findEmployee();
+		} else if(o == btnNghiViec) {
+			deleteEmployee();
+			loadDataToTable();
+		}else if(o == btnLuu) {
+			updateEmployee();
+			loadDataToTable();
 		}
-		
 	}
 
 }

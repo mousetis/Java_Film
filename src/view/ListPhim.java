@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -15,6 +16,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -25,6 +27,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+
+import model.Employee;
+import services.Movies;
 
 public class ListPhim extends JPanel implements ActionListener{
 
@@ -57,8 +62,12 @@ public class ListPhim extends JPanel implements ActionListener{
 	private JButton btnDungChieu;
 	private JLabel lbTitle2;
 	private JButton btnXoaTrang;
+	private services.Movies service;
+	private dao.Movies dao;
+	ArrayList<model.Movies> list = new ArrayList<model.Movies>();
 
 	public ListPhim() {
+		service = new Movies(dao);
 		Font font = new Font ("Arial",Font.BOLD,16);
 		Font font2 = new Font ("Arial",Font.BOLD,20);
 		
@@ -97,20 +106,20 @@ public class ListPhim extends JPanel implements ActionListener{
 		boxLeft.add(Box.createVerticalStrut(15));
 		
 		//Field các nút thay đổi loại bảng đang phát hàng hoặc đã dừng chiếu nằm trên phần khung bên trái
-		Box boxLeft3 = new Box(BoxLayout.X_AXIS);
-		boxLeft3.add(btnDangPhatHanh = new JButton("Đang phát hành"));
-		btnDangPhatHanh.setFont(font);
-		btnDangPhatHanh.setBackground(Color.CYAN);
-		boxLeft3.add(Box.createHorizontalStrut(25));
-		boxLeft3.add(btnDaDung = new JButton("Đã dừng"));
-		btnDaDung.setFont(font);
-		btnDaDung.setBackground(Color.RED);
-		boxLeft.add(boxLeft3);
-		boxLeft.add(Box.createVerticalStrut(15));
+//		Box boxLeft3 = new Box(BoxLayout.X_AXIS);
+//		boxLeft3.add(btnDangPhatHanh = new JButton("Đang phát hành"));
+//		btnDangPhatHanh.setFont(font);
+//		btnDangPhatHanh.setBackground(Color.CYAN);
+//		boxLeft3.add(Box.createHorizontalStrut(25));
+//		boxLeft3.add(btnDaDung = new JButton("Đã dừng"));
+//		btnDaDung.setFont(font);
+//		btnDaDung.setBackground(Color.RED);
+//		boxLeft.add(boxLeft3);
+//		boxLeft.add(Box.createVerticalStrut(15));
 		
 		//Field table nằm trên phần khung bên trái
 		Box boxTable = new Box(BoxLayout.Y_AXIS);
-		String[] colNames = {"Mã phim", "Tên phim", "Độ tuổi", "Giá vé", "Thời lượng", "Trạng thái"};
+		String[] colNames = {"Mã phim", "Tên phim", "Độ tuổi", "Ngày phát hành", "Thời lượng"};
 		tblmodel = new DefaultTableModel(colNames, 0);
 		table = new JTable(tblmodel);
 		boxTable.add(new JScrollPane(table));
@@ -241,7 +250,59 @@ public class ListPhim extends JPanel implements ActionListener{
 		
 		btnXoaTrang.addActionListener(this);
 		
+		loadDataToTable();
+		
 	}
+	
+	//load dữ liệu lên bảng
+		public void loadDataToTable() {
+			tblmodel.setRowCount(0);
+			list = service.getList();
+			for(model.Movies movie : list) {
+				tblmodel.addRow(new Object[] {
+						movie.getMovieID(),
+						movie.getTitle(),
+						movie.getAgeRating(),
+						movie.getReleaseDate(),
+						movie.getDuration()
+				});
+			}
+		}
+		
+		//load dữ liệu lên textField
+//		public void loadToTextField() {
+//			int rowSelected = table.convertRowIndexToModel(table.getSelectedRow());
+//			String maNV = tblmodel.getValueAt(rowSelected, 0).toString();
+//			Employee nv = new Employee();
+//			nv = service.getEmployee(maNV);
+//			txtMaNhanVien.setText(maNV);
+//			txtHoTen.setText(nv.getEmployeeName());
+//			txtSDT.setText(nv.getPhone());
+//			txtEmail.setText(nv.getEmail());
+//			if(nv.isGender()) {
+//				rdNam.setSelected(true);
+//			} else {
+//				rdNu.setSelected(true);
+//			}
+//			comboxQuyen.setSelectedItem(nv.getRole());
+//		}
+//		
+//		//cập nhật bảng
+//		public void updateTable(ArrayList<Employee> nv){
+//	        if(!nv.isEmpty()) {
+//	        	tblmodel.setRowCount(0);
+//		        for (Employee emp : list) {
+//		            tblmodel.addRow(new Object[]{
+//		        		emp.getEmployeeID(),
+//						emp.getEmployeeName(),
+//						emp.getEmail()  
+//	            	});
+//	        	}
+//	        }
+//	        else{
+//	            JOptionPane.showMessageDialog(this,"Không tìm thông tin phù hợp","Thông báo",JOptionPane.ERROR_MESSAGE);
+//	        }
+//	    }
 	
 	public void xoaTrang() {
 		txtTimMaPhim.setText("");
