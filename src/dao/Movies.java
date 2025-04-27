@@ -14,7 +14,7 @@ import model.Employee;
 import model.MovieCategory;
 
 public class Movies {
-	Connection con = Connected.getConnection();
+	static Connection con = Connected.getConnection();
 	
 	//hàm đổi từ localdate sang date
 	public static java.sql.Date localDateToSqlDate(LocalDate localDate) {
@@ -157,7 +157,7 @@ public class Movies {
 		}
 		
 		//thêm phim
-		public boolean addEmployee(model.Movies movie, String email, String password) {
+		public boolean addMovie(model.Movies movie) {
 			String sql = "insert into Employee(MovieID, Title, Duration, Description, AgeRating, ReleaseDate) values(?, ?, ?, ?, ?, ?)";
 			try {
 				if(movie != null) {
@@ -183,10 +183,10 @@ public class Movies {
 			return false;
 		}
 		
-//		//lấy dữ liệu phim
+		//lấy dữ liệu phim
 		public model.Movies getMoive(String keyID) {
 			model.Movies movie = new model.Movies();
-			String sql = "select * from Employee where MovieID = ?";
+			String sql = "select * from Movies where MovieID = ?";
 			try {
 				PreparedStatement stmt = con.prepareStatement(sql);
 				stmt.setString(1, keyID);
@@ -207,5 +207,25 @@ public class Movies {
 			}
 			
 			return movie;
+		}
+		
+		//lấy showtimes theo movieID
+		public static String getShowtimeIDFromMovies(String movieID) {
+			String showtimeID = null;
+			String sql = "select top 1 ShowtimeID from Showtimes where MovieID = ?";
+			try {
+				PreparedStatement stmt = con.prepareStatement(sql);
+				stmt.setString(1, movieID);
+				ResultSet res = stmt.executeQuery();
+				
+				if(res.next()) {
+					showtimeID = res.getString("ShowtimeID");
+				}
+				res.close();
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return showtimeID;
 		}
 }

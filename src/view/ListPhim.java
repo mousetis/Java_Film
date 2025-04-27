@@ -8,6 +8,11 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.lang.reflect.Array;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javax.swing.Box;
@@ -31,7 +36,7 @@ import javax.swing.table.TableRowSorter;
 import model.Employee;
 import services.Movies;
 
-public class ListPhim extends JPanel implements ActionListener{
+public class ListPhim extends JPanel implements ActionListener, MouseListener{
 
 	private JLabel lbTimMaPhim;
 	private JTextField txtTimMaPhim;
@@ -209,17 +214,17 @@ public class ListPhim extends JPanel implements ActionListener{
 		boxRight.add(boxRight5);
 		boxRight.add(Box.createVerticalStrut(20));
 		
-		//Field hiển thị thời gian đã tạo phim hoặc cập nhật phim nằm trên phần khung bên phải
-		JPanel pnlRight6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		Box boxRight6 = new Box(BoxLayout.X_AXIS);
-		boxRight6.add(lbThoiGianTao= new JLabel("Thời gian tạo:"));  //lbThoiGianTao là label chỉ nhãn "Thời gian tạo:"
-		lbThoiGianTao.setFont(font);
-		boxRight6.add(Box.createHorizontalStrut(20));
-		boxRight6.add(lbThoiGian = new JLabel(""));	// lbThoiGian là dùng để lấy giá trị thời gian "HH:mm:ss dd-MM-yyyy" tại thời điểm tạo hoặc lưu thay đổi
-		lbThoiGian.setFont(font);
-		pnlRight6.add(boxRight6);
-		boxRight.add(pnlRight6);
-		boxRight.add(Box.createVerticalStrut(20));
+//		//Field hiển thị thời gian đã tạo phim hoặc cập nhật phim nằm trên phần khung bên phải
+//		JPanel pnlRight6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//		Box boxRight6 = new Box(BoxLayout.X_AXIS);
+//		boxRight6.add(lbThoiGianTao= new JLabel("Thời gian tạo:"));  //lbThoiGianTao là label chỉ nhãn "Thời gian tạo:"
+//		lbThoiGianTao.setFont(font);
+//		boxRight6.add(Box.createHorizontalStrut(20));
+//		boxRight6.add(lbThoiGian = new JLabel(""));	// lbThoiGian là dùng để lấy giá trị thời gian "HH:mm:ss dd-MM-yyyy" tại thời điểm tạo hoặc lưu thay đổi
+//		lbThoiGian.setFont(font);
+//		pnlRight6.add(boxRight6);
+//		boxRight.add(pnlRight6);
+//		boxRight.add(Box.createVerticalStrut(20));
 		
 		//Field chức năng sửa hoặc xóa phim nằm trên phần khung bên phải
 		Box boxRight7 = new Box(BoxLayout.X_AXIS);
@@ -249,61 +254,70 @@ public class ListPhim extends JPanel implements ActionListener{
 		
 		
 		btnXoaTrang.addActionListener(this);
-		
+		btnTimKiem.addActionListener(this);
+		btnSua.addActionListener(this);
+		btnDungChieu.addActionListener(this);
+		table.addMouseListener(this);
 		loadDataToTable();
 		
 	}
 	
 	//load dữ liệu lên bảng
-		public void loadDataToTable() {
-			tblmodel.setRowCount(0);
-			list = service.getList();
-			for(model.Movies movie : list) {
-				tblmodel.addRow(new Object[] {
-						movie.getMovieID(),
-						movie.getTitle(),
-						movie.getAgeRating(),
-						movie.getReleaseDate(),
-						movie.getDuration()
-				});
-			}
+	public void loadDataToTable() {
+		tblmodel.setRowCount(0);
+		list = service.getList();
+		for(model.Movies movie : list) {
+			tblmodel.addRow(new Object[] {
+					movie.getMovieID(),
+					movie.getTitle(),
+					movie.getAgeRating(),
+					movie.getReleaseDate(),
+					movie.getDuration()
+			});
 		}
-		
-		//load dữ liệu lên textField
-//		public void loadToTextField() {
-//			int rowSelected = table.convertRowIndexToModel(table.getSelectedRow());
-//			String maNV = tblmodel.getValueAt(rowSelected, 0).toString();
-//			Employee nv = new Employee();
-//			nv = service.getEmployee(maNV);
-//			txtMaNhanVien.setText(maNV);
-//			txtHoTen.setText(nv.getEmployeeName());
-//			txtSDT.setText(nv.getPhone());
-//			txtEmail.setText(nv.getEmail());
-//			if(nv.isGender()) {
-//				rdNam.setSelected(true);
-//			} else {
-//				rdNu.setSelected(true);
-//			}
-//			comboxQuyen.setSelectedItem(nv.getRole());
-//		}
-//		
-//		//cập nhật bảng
-//		public void updateTable(ArrayList<Employee> nv){
-//	        if(!nv.isEmpty()) {
-//	        	tblmodel.setRowCount(0);
-//		        for (Employee emp : list) {
-//		            tblmodel.addRow(new Object[]{
-//		        		emp.getEmployeeID(),
-//						emp.getEmployeeName(),
-//						emp.getEmail()  
-//	            	});
-//	        	}
-//	        }
-//	        else{
-//	            JOptionPane.showMessageDialog(this,"Không tìm thông tin phù hợp","Thông báo",JOptionPane.ERROR_MESSAGE);
-//	        }
-//	    }
+	}
 	
+	//load dữ liệu lên textField
+	public void loadToTextField() {
+		int rowSelected = table.convertRowIndexToModel(table.getSelectedRow());
+		String maMV = tblmodel.getValueAt(rowSelected, 0).toString();
+		model.Movies mv = new model.Movies();
+		mv = service.getMovie(maMV);
+		txtMaPhim.setText(maMV);
+		txtTenPhim.setText(mv.getTitle());
+		int ageRating = mv.getAgeRating();
+		if(ageRating < 16) {
+			rdTreEm.setSelected(true);
+		}else if(ageRating >= 16 && ageRating < 18) {
+			rdTren16.setSelected(true);
+		}else {
+			rdTren18.setSelected(true);
+		}
+		int time = mv.getDuration();
+		double price = service.getPriceByMovieID(maMV);
+		spinnerThoiLuong.setValue(time);
+		spinnerGiaVe.setValue(price);
+	}
+	
+	//cập nhật bảng
+	public void updateTable(ArrayList<model.Movies> mv){
+        if(!mv.isEmpty()) {
+        	tblmodel.setRowCount(0);
+	        for (model.Movies movie : list) {
+	            tblmodel.addRow(new Object[]{
+	        		movie.getMovieID(),
+					movie.getTitle(),
+					movie.getAgeRating(),
+					movie.getReleaseDate(),
+					movie.getDuration()
+            	});
+        	}
+        }
+        else{
+            JOptionPane.showMessageDialog(this,"Không tìm thông tin phù hợp","Thông báo",JOptionPane.ERROR_MESSAGE);
+        }
+    }
+	//xoá trắng
 	public void xoaTrang() {
 		txtTimMaPhim.setText("");
 		txtTimTenPhim.setText("");
@@ -312,8 +326,73 @@ public class ListPhim extends JPanel implements ActionListener{
 		rdTren18.setSelected(true);
 		spinnerGiaVe.setValue(0);
 		spinnerThoiLuong.setValue(0);
-		lbThoiGian.setText("");
 		txtMaPhim.requestFocus();
+		loadDataToTable();
+	}
+	
+	//tìm phim
+	public void findMovie() {
+		String movieID = txtTimMaPhim.getText();
+		String movieName = txtTimTenPhim.getText();
+		list = service.findMovie(movieID, movieName);
+		updateTable(list);
+	}
+	
+	//chuyển từ chuỗi sang localdate
+	public LocalDate convertStringToLocalDate(String dateStr) {
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    return LocalDate.parse(dateStr, formatter);
+	}
+	
+	//cập nhật phim
+	public void updateMovie() {
+		int rowSelected = table.getSelectedRow();
+		if(rowSelected == -1) {
+			JOptionPane.showMessageDialog(this, "Không có thông tin nào cập nhật!", "Lỗi",JOptionPane.ERROR_MESSAGE);
+		}else {
+			rowSelected = table.convertRowIndexToModel(rowSelected);
+			String movieID = tblmodel.getValueAt(rowSelected, 0).toString();
+			String currentID = txtMaPhim.getText();
+			if(!currentID.equalsIgnoreCase(movieID)) {
+				JOptionPane.showMessageDialog(this, "Không được sửa mã phim!","Lỗi",JOptionPane.ERROR_MESSAGE);
+				txtMaPhim.setText(movieID);
+				txtMaPhim.requestFocus();
+				return;
+			}
+			model.Movies mv = new model.Movies();
+			mv.setMovieID(movieID);
+			mv.setTitle(txtTenPhim.getText());
+			mv.setAgeRating(Integer.parseInt(tblmodel.getValueAt(rowSelected, 2).toString()));
+			Number numberDur = (Number) spinnerThoiLuong.getValue();
+			mv.setDuration(numberDur.intValue());
+			mv.setReleaseDate(convertStringToLocalDate(tblmodel.getValueAt(rowSelected,3).toString()));
+			Number number = (Number) spinnerGiaVe.getValue();
+			double newPrice = number.doubleValue();
+			String ticketID = service.getTicketIDByMovieID(movieID);
+			boolean resTicket = service.updatePrice(ticketID, newPrice);
+			boolean res = service.update(movieID, mv);
+			if(res && resTicket) {
+				JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			}else {
+				JOptionPane.showMessageDialog(this, "Cập nhật không thành công!", "Lỗi",JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
+	//xoá phim
+	public void deleteMovie() {
+		int rowSelected = table.getSelectedRow();
+		if(rowSelected == -1) {
+			JOptionPane.showMessageDialog(this, "Vui lòng chọn phim cần xoá!", "Lỗi",JOptionPane.ERROR_MESSAGE);
+		}else {
+			rowSelected = table.convertRowIndexToModel(rowSelected);
+			String movieID = tblmodel.getValueAt(rowSelected, 0).toString();
+			if(service.delete(movieID)) {
+				JOptionPane.showMessageDialog(this, "Xoá thành công!","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+			}else {
+				JOptionPane.showMessageDialog(this, "Xoá không thàng công!","Lỗi!",JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -325,7 +404,49 @@ public class ListPhim extends JPanel implements ActionListener{
 		Object o = e.getSource();
 		if(o.equals(btnXoaTrang)) {
 			xoaTrang();
+		} else if(o.equals(btnTimKiem)) {
+			findMovie();
+		} else if(o.equals(btnSua)) {
+			int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thay đổi?","Xác nhận",JOptionPane.YES_NO_OPTION);
+			if(confirm == JOptionPane.YES_OPTION) {
+				updateMovie();
+			}
+		} else if(o.equals(btnDungChieu)) {
+			int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xoá?","Xác nhận",JOptionPane.YES_NO_OPTION);
+			if(confirm == JOptionPane.YES_OPTION) {
+				deleteMovie();
+			}
 		}
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		loadToTextField();
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
 		
 	}
 }

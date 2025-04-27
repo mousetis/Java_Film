@@ -306,8 +306,8 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 			JOptionPane.showMessageDialog(this, "Không có thông tin nào cập nhật!", "Lỗi",JOptionPane.ERROR_MESSAGE);
 		}else {
 			rowSelected = table.convertRowIndexToModel(rowSelected);
-			txtMaNhanVien.setEditable(false);
 			String keyID = tblmodel.getValueAt(rowSelected, 0).toString();
+			String currentID = txtMaNhanVien.getText();
 			String name = txtHoTen.getText();
 			String phone = txtSDT.getText();
 			String email = txtEmail.getText();
@@ -318,13 +318,19 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 				gender = false;
 			}
 			String role = (String) comboxQuyen.getSelectedItem();
+			if(!currentID.equalsIgnoreCase(keyID)) {
+				JOptionPane.showMessageDialog(this, "Không được sửa mã nhân viên!","Lỗi",JOptionPane.ERROR_MESSAGE);
+				txtMaNhanVien.setText(keyID);
+				txtMaNhanVien.requestFocus();
+				return;
+			}
 			Employee nv = new Employee();
 			nv.setEmployeeID(keyID);
 			nv.setEmployeeName(name);
 			nv.setPhone(phone);
 			nv.setGender(gender);
 			nv.setEmail(email);
-			nv.setRole(role);
+			nv.setRole(role);		
 			boolean res = service.updateEmployee(keyID, nv);
 			if(res) {
 				JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -391,11 +397,17 @@ public class ListNV extends JPanel implements ActionListener, MouseListener{
 		} else if(o == btnTim) {
 			findEmployee();
 		} else if(o == btnNghiViec) {
-			deleteEmployee();
-			loadDataToTable();
+			int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn cho nhân viên này thôi việc","Xác Nhận",JOptionPane.YES_NO_OPTION);
+			if(confirm == JOptionPane.YES_OPTION) {
+				deleteEmployee();
+				loadDataToTable();
+			}	
 		}else if(o == btnLuu) {
-			updateEmployee();
-			loadDataToTable();
+			int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn cập nhật?","Xác nhận",JOptionPane.YES_NO_OPTION);
+			if(confirm == JOptionPane.YES_OPTION);{
+				updateEmployee();
+				loadDataToTable();
+			}
 		}
 	}
 

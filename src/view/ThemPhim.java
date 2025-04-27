@@ -8,6 +8,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -27,6 +29,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import com.toedter.calendar.JDateChooser;
+
+import services.Movies;
+
 public class ThemPhim extends JPanel implements ActionListener{
 	private JLabel lbTitle;
 	private DefaultTableModel tblmodel;
@@ -35,8 +41,8 @@ public class ThemPhim extends JPanel implements ActionListener{
 	private JButton btnThemTatCa;
 	private JButton btnXoa;
 	private JButton btnXoaTatCa;
-	private JLabel lbMaPhim;
-	private JTextField txtMaPhim;
+	private JLabel lbNgayPhatHanh;
+	private JTextField txtNgayPhatHanh;
 	private JLabel lbTenPhim;
 	private JTextField txtTenPhim;
 	private JLabel lbDoTuoi;
@@ -51,12 +57,19 @@ public class ThemPhim extends JPanel implements ActionListener{
 	private JButton btnThemPhim;
 	private JButton btnXoaTrang;
 	private JLabel lbTitle2;
-
+	private JButton btnThem;
+	private services.Movies service;
+	private dao.Movies dao;
+	ArrayList<model.Movies> list = new ArrayList<model.Movies>();
+	private JDateChooser findDateChooser;
+	private JLabel lbTimNgayChieu;
+	
 	public ThemPhim() {
 		Font font = new Font ("Arial",Font.BOLD,15);
 		Font font1 = new Font ("Arial",Font.BOLD,23);
 		Font font2 = new Font ("Arial",Font.BOLD,18);
 		
+		service = new Movies(dao);
 		//Phần khung tổng chứa tất cả
 		Box pnlCent = new Box(BoxLayout.X_AXIS);
 		
@@ -82,7 +95,7 @@ public class ThemPhim extends JPanel implements ActionListener{
 		//Phần table nằm trên phần ở chính giữa phần khung bên trái
 		Box boxTable = new Box(BoxLayout.Y_AXIS);
 		boxTable.setPreferredSize(new Dimension(450, 600)); //set kích thước cho phần table so với khung
-		String[] colNames = {"Mã phim", "Tên phim", "Độ tuổi", "Giá vé", "Thời lượng"};
+		String[] colNames = {"Ngày Phát Hành", "Tên phim", "Độ tuổi", "Giá vé", "Thời lượng"};
 		tblmodel = new DefaultTableModel(colNames, 0);
 		table = new JTable(tblmodel);
 		boxTable.add(new JScrollPane(table));
@@ -107,6 +120,15 @@ public class ThemPhim extends JPanel implements ActionListener{
 		btnThemTatCa.setPreferredSize(buttonSize);
 		btnThemTatCa.setMaximumSize(buttonSize);
 		btnThemTatCa.setMinimumSize(buttonSize);
+		boxLeft3.add(Box.createVerticalStrut(20));
+		
+		//Nút thêm
+		boxLeft3.add(btnThem = new JButton("Thêm"));
+		btnThem.setFont(font);
+		btnThem.setBackground(Color.GRAY);
+		btnThem.setPreferredSize(buttonSize);
+		btnThem.setMaximumSize(buttonSize);
+		btnThem.setMinimumSize(buttonSize);
 		boxLeft3.add(Box.createVerticalStrut(20));
 		
 		//Nút xóa
@@ -151,16 +173,30 @@ public class ThemPhim extends JPanel implements ActionListener{
 		boxRight.add(boxRight0);
 		boxRight.add(Box.createVerticalStrut(25));
 		
-		//Field nhập mã phim nằm trên phần khung bên phải
+		//Field nhập ngày phát hành nằm trên phần khung bên phải
 		Box boxRight1 = new Box(BoxLayout.X_AXIS);
-		boxRight1.add(Box.createHorizontalStrut(100));
-		boxRight1.add(lbMaPhim = new JLabel("Mã phim:"));
-		lbMaPhim.setFont(font);
+//		findDateChooser = new JDateChooser();
+//		findDateChooser.setDateFormatString("yyyy-MM-dd"); // format ngày
+//		findDateChooser.setPreferredSize(new Dimension(50, 30)); // chỉnh kích thước
+//		boxRight1.add(Box.createHorizontalStrut(100));
+//		boxRight1.add(lbNgayPhatHanh = new JLabel("Ngày phát hành:"));
+//		lbNgayPhatHanh.setFont(font);
+//		boxRight1.add(Box.createHorizontalStrut(20));
+//		boxRight1.add(txtNgayPhatHanh = new JTextField(10));
+//		txtNgayPhatHanh.setPreferredSize(new Dimension(10, 30));
+//		txtNgayPhatHanh.requestFocus();
+//		boxRight1.add(Box.createHorizontalStrut(10));
+//		boxRight1.add(findDateChooser);
+//		boxRight.add(boxRight1);
+//		boxRight.add(Box.createVerticalStrut(25));
+
+		boxRight1.add(lbNgayPhatHanh = new JLabel("Ngày Phát Hành:"));
+		lbNgayPhatHanh.setFont(font);
 		boxRight1.add(Box.createHorizontalStrut(20));
-		boxRight1.add(txtMaPhim = new JTextField(10));
-		txtMaPhim.setPreferredSize(new Dimension(10, 30));
-		txtMaPhim.requestFocus();
-		boxRight1.add(Box.createHorizontalStrut(100));
+		findDateChooser = new JDateChooser();
+		findDateChooser.setDateFormatString("yyyy-MM-dd"); // format ngày 
+		findDateChooser.setPreferredSize(new Dimension(150, 30));
+		boxRight1.add(findDateChooser);
 		boxRight.add(boxRight1);
 		boxRight.add(Box.createVerticalStrut(25));
 		
@@ -252,13 +288,38 @@ public class ThemPhim extends JPanel implements ActionListener{
 		btnXoaTrang.addActionListener(this);
 	}
 	
+	//xoá trắng
 	public void xoaTrang() {
-		txtMaPhim.setText("");
+		txtNgayPhatHanh.setText("");
 		txtTenPhim.setText("");
 		rdTren18.setSelected(true);
 		spinnerGiaVe.setValue(0);
 		spinnerThoiLuong.setValue(0);
-		txtMaPhim.requestFocus();
+		txtNgayPhatHanh.requestFocus();
+	}
+	
+	//thêm phim vào bảng
+	public void addToTable() {
+		try {
+			String releaseDate = txtNgayPhatHanh.getText();
+			String title = txtTenPhim.getText();
+			int age;
+			if(rdTreEm.isSelected()) {
+				age = 13;
+			}else if(rdTren16.isSelected()) {
+				age = 15;
+			}else {
+				age = 18;
+			}
+			Number numberPrice = (Number) spinnerGiaVe.getValue();
+			double price = numberPrice.doubleValue();
+			Number numberDur = (Number) spinnerThoiLuong.getValue();
+			int duration = numberDur.intValue();
+			
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 	
 	public static void main(String[] args) {
